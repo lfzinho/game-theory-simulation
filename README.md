@@ -53,8 +53,8 @@ Below are the details for each game modeled in this simulation.
 
 **Prizes (Payoff Matrix):**
 *   **Cooperate / Cooperate:** Player A gets 2, Player B gets 1 (Event 1).
-*   **Defect / Cooperate:** Both get 0 (Miskoordination).
-*   **Cooperate / Defect:** Both get 0 (Miskoordination).
+*   **Defect / Cooperate:** Both get 0 (Miscoordination).
+*   **Cooperate / Defect:** Both get 0 (Miscoordination).
 *   **Defect / Defect:** Player A gets 1, Player B gets 2 (Event 2).
 
 **Population Evolution:**
