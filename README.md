@@ -2,7 +2,16 @@
 
 This project simulates evolutionary game theory by pitting various decision-making strategies against one another in classic game theoretical environments. Players in a graph engage in repeated matches for a set amount of epochs. At the end of every epoch, the bottom performers "die off" and upper performers "reproduce." Over several epochs, we observe which strategies dominate the population based on survival of the fittest.
 
-Below are the details for each game modeled in this simulation.
+## Available Graph Topologies
+Because relationships between populations dictate survival, this simulation structures population matchups across several universal mathematical topologies:
+1. **Fully Connected**: Every player battles every other player. Provides pure strategic baseline benchmarks without positional limits.
+2. **Cycle**: A 1D ring lattice where each player only interacts with their immediate left/right neighbors.
+3. **Small World**: (Watts-Strogatz) A ring lattice where arbitrary edges are randomly re-wired across the world, creating "shortcuts" that mimic human social networks.
+4. **Scale Free**: (Barabási–Albert) Preferential attachment simulating wealth disparity or "hubs" like the internet—a few nodes have massive connectivity, while most have very little.
+5. **Erdős-Rényi**: A purely random probability structure.
+6. **Grid**: A classic 2D spatial matrix arrangement heavily featured in biological cellular automata, restricting battles to North/South/East/West neighbors.
+
+Below are the evolutionary tracking records for each game modeled natively against every network structure above.
 
 ---
 
@@ -15,8 +24,23 @@ Below are the details for each game modeled in this simulation.
 *   **Cooperate / Defect:** Cooperator gets 0 points, Defector gets 3.
 *   **Defect / Defect:** Both get 1 point.
 
-**Population Evolution:**
-![Prisoner's Dilemma Population](output/prisoner's_dilemma.png)
+<details>
+<summary><b>Click to View Topologies</b></summary>
+<br>
+
+### Fully Connected
+![Fully Connected](output/prisoner's_dilemma_-_fully_connected.png)
+### Cycle
+![Cycle](output/prisoner's_dilemma_-_cycle.png)
+### Small World
+![Small World](output/prisoner's_dilemma_-_small_world.png)
+### Scale Free
+![Scale Free](output/prisoner's_dilemma_-_scale_free.png)
+### Erdős-Rényi
+![Erdos-Renyi](output/prisoner's_dilemma_-_erdos-renyi.png)
+### 2D Grid
+![Grid](output/prisoner's_dilemma_-_grid.png)
+</details>
 
 ---
 
@@ -29,8 +53,23 @@ Below are the details for each game modeled in this simulation.
 *   **Cooperate / Defect:** Cooperator gets -1 points, Defector gets 1.
 *   **Defect / Defect:** Both get -2 points (crash).
 
-**Population Evolution:**
-![Chicken Population](output/chicken.png)
+<details>
+<summary><b>Click to View Topologies</b></summary>
+<br>
+
+### Fully Connected
+![Fully Connected](output/chicken_-_fully_connected.png)
+### Cycle
+![Cycle](output/chicken_-_cycle.png)
+### Small World
+![Small World](output/chicken_-_small_world.png)
+### Scale Free
+![Scale Free](output/chicken_-_scale_free.png)
+### Erdős-Rényi
+![Erdos-Renyi](output/chicken_-_erdos-renyi.png)
+### 2D Grid
+![Grid](output/chicken_-_grid.png)
+</details>
 
 ---
 
@@ -43,8 +82,23 @@ Below are the details for each game modeled in this simulation.
 *   **Cooperate / Defect:** Cooperator gets 0 points, Defector gets 2 (Rabbit).
 *   **Defect / Defect:** Both get 1 point (Rabbit each).
 
-**Population Evolution:**
-![Stag Hunt Population](output/stag_hunt.png)
+<details>
+<summary><b>Click to View Topologies</b></summary>
+<br>
+
+### Fully Connected
+![Fully Connected](output/stag_hunt_-_fully_connected.png)
+### Cycle
+![Cycle](output/stag_hunt_-_cycle.png)
+### Small World
+![Small World](output/stag_hunt_-_small_world.png)
+### Scale Free
+![Scale Free](output/stag_hunt_-_scale_free.png)
+### Erdős-Rényi
+![Erdos-Renyi](output/stag_hunt_-_erdos-renyi.png)
+### 2D Grid
+![Grid](output/stag_hunt_-_grid.png)
+</details>
 
 ---
 
@@ -53,9 +107,24 @@ Below are the details for each game modeled in this simulation.
 
 **Prizes (Payoff Matrix):**
 *   **Cooperate / Cooperate:** Player A gets 2, Player B gets 1 (Event 1).
-*   **Defect / Cooperate:** Both get 0 (Miscoordination).
-*   **Cooperate / Defect:** Both get 0 (Miscoordination).
+*   **Defect / Cooperate:** Both get 0 (Miskoordination).
+*   **Cooperate / Defect:** Both get 0 (Miskoordination).
 *   **Defect / Defect:** Player A gets 1, Player B gets 2 (Event 2).
 
-**Population Evolution:**
-![Battle of the Sexes Population](output/battle_of_the_sexes.png)
+<details>
+<summary><b>Click to View Topologies</b></summary>
+<br>
+
+### Fully Connected
+![Fully Connected](output/battle_of_the_sexes_-_fully_connected.png)
+### Cycle
+![Cycle](output/battle_of_the_sexes_-_cycle.png)
+### Small World
+![Small World](output/battle_of_the_sexes_-_small_world.png)
+### Scale Free
+![Scale Free](output/battle_of_the_sexes_-_scale_free.png)
+### Erdős-Rényi
+![Erdos-Renyi](output/battle_of_the_sexes_-_erdos-renyi.png)
+### 2D Grid
+![Grid](output/battle_of_the_sexes_-_grid.png)
+</details>

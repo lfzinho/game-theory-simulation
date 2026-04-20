@@ -106,30 +106,47 @@ def simulation_step(players, death_threshold=0.25, reproduction_threshold=0.75):
     return new_generation
 
 
+def get_graph_generators(n):
+    return {
+        "Fully Connected": lambda: FullyConnectedGraph(n),
+        "Cycle": lambda: CycleGraph(n),
+        "Small World": lambda: SmallWorldGraph(n, k=4, p=0.1),
+        "Scale Free": lambda: BarabasiAlbertGraph(n, m=3),
+        "Erdos-Renyi": lambda: ErdosRenyiGraph(n, p=0.2),
+        "Grid": lambda: GridGraph(n, wrap_around=True)
+    }
+
+
 def main():
     game_plotter = Plotter()
     results = {}
-    for game_name, game_machine in GAME_MACHINES.items():
-        players = generate_players(instances_per_class=50)
-        
-        # Record initial population
-        game_plotter.record_epoch(game_name, 0, players)
+    
+    # Check baseline nodes
+    baseline_nodes = len(generate_players(instances_per_class=50))
+    graph_generators = get_graph_generators(baseline_nodes)
 
-        for i in tqdm(range(EPOCHS), desc=f"Simulating {game_name}", unit="epoch"):
-            # Instantiate graph here in case population size changes from simulation_step
-            game_graph = FullyConnectedGraph(len(players))
-            run_epoch(players, game_machine, game_graph)
-            players = simulation_step(players)
+    for graph_name, graph_gen in graph_generators.items():
+        for game_name, game_machine in GAME_MACHINES.items():
+            run_name = f"{game_name} - {graph_name}"
+            players = generate_players(instances_per_class=50)
+            game_graph = graph_gen()
+            
+            # Record initial population
+            game_plotter.record_epoch(run_name, 0, players)
 
-            # Record population after reproduction and death
-            game_plotter.record_epoch(game_name, i + 1, players)
+            for i in tqdm(range(EPOCHS), desc=f"Simulating {run_name}", unit="epoch"):
+                run_epoch(players, game_machine, game_graph)
+                players = simulation_step(players)
 
-        # Print concise summary
-        counts = Counter(p.strategy_name for p in players)
-        print(f"Final population for {game_name}:")
-        for strategy, count in counts.most_common():
-            print(f"  {strategy}: {count}")
-        print()
+                # Record population after reproduction and death
+                game_plotter.record_epoch(run_name, i + 1, players)
+
+            # Print concise summary
+            counts = Counter(p.strategy_name for p in players)
+            print(f"Final population for {run_name}:")
+            for strategy, count in counts.most_common():
+                print(f"  {strategy}: {count}")
+            print()
         print()
 
     print("Generating CSVs and Plots...")

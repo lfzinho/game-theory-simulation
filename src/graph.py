@@ -7,22 +7,31 @@ class Graph(ABC):
         self.num_nodes = num_nodes
         self.adj_matrix = np.zeros((num_nodes, num_nodes))
         self.edge_values = np.empty((num_nodes, num_nodes), dtype=object)
+        self._edge_list = []
 
     def add_edge(self, u, v):
-        self.adj_matrix[u][v] = 1
-        self.adj_matrix[v][u] = 1
+        # Only add if it doesn't already exist to prevent duplicates
+        if self.adj_matrix[u][v] == 0:
+            self.adj_matrix[u][v] = 1
+            self.adj_matrix[v][u] = 1
+            self._edge_list.append((min(u, v), max(u, v)))
+
+    def remove_edge(self, u, v):
+        if self.adj_matrix[u][v] == 1:
+            self.adj_matrix[u][v] = 0
+            self.adj_matrix[v][u] = 0
+            # edge might be stored as (u, v) or (v, u)
+            edge = (min(u, v), max(u, v))
+            if edge in self._edge_list:
+                self._edge_list.remove(edge)
 
     def set_edge_value(self, u, v, value):
         self.edge_values[u][v] = value
         self.edge_values[v][u] = value
     
     def get_edges(self):
-        edges = []
-        for i in range(self.num_nodes):
-            for j in range(i + 1, self.num_nodes):
-                if self.adj_matrix[i][j] == 1:
-                    edges.append((i, j))
-        return edges
+        """Returns list of edges. Cached continuously for O(1) lookup."""
+        return self._edge_list
 
 
 class FullyConnectedGraph(Graph):
@@ -80,9 +89,8 @@ class SmallWorldGraph(Graph):
                         if n != u and self.adj_matrix[u][n] == 0
                     ]
                     if choices:
-                        # Remove old edge
-                        self.adj_matrix[u][v] = 0
-                        self.adj_matrix[v][u] = 0
+                        # Remove old edge safely
+                        self.remove_edge(u, v)
                         # Add new edge
                         new_v = np.random.choice(choices)
                         self.add_edge(u, new_v)
@@ -119,3 +127,45 @@ class BarabasiAlbertGraph(Graph):
 
             for target in targets:
                 self.add_edge(target, i)
+
+
+class ErdosRenyiGraph(Graph):
+    """
+    Erdős-Rényi Random Graph
+    Each possible edge is created independently with probability p.
+    """
+    def __init__(self, num_nodes, p):
+        super().__init__(num_nodes)
+        for i in range(num_nodes):
+            for j in range(i + 1, num_nodes):
+                if np.random.rand() < p:
+                    self.add_edge(i, j)
+
+
+class GridGraph(Graph):
+    """
+    2D Grid Lattice topology commonly used in spatial evolutionary game theory.
+    Nodes are mapped onto an approximate square grid layout.
+    """
+    def __init__(self, num_nodes, wrap_around=False):
+        super().__init__(num_nodes)
+        # Determine closest square grid dimensions (width x height)
+        import math
+        width = math.ceil(math.sqrt(num_nodes))
+        height = math.ceil(num_nodes / width)
+        
+        for i in range(num_nodes):
+            row = i // width
+            col = i % width
+            
+            # Connect to Right neighbor
+            if col + 1 < width and (row * width + col + 1) < num_nodes:
+                self.add_edge(i, i + 1)
+            elif wrap_around and col + 1 == width:
+                self.add_edge(i, row * width)
+                
+            # Connect to Bottom neighbor
+            if row + 1 < height and ((row + 1) * width + col) < num_nodes:
+                self.add_edge(i, i + width)
+            elif wrap_around and row + 1 == height:
+                self.add_edge(i, col)  # connect bottom row to top row
