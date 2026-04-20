@@ -8,12 +8,14 @@ from player_classes import *
 from game_machine import *
 from graph import *
 from plotter import Plotter
+from tqdm import tqdm
+from collections import Counter
 
 
 CONSECUTIVE_MOVES = 10
 EPOCHS = 12
 GAME_MACHINES = {
-    "Prisioner`s Dilemma": GameMachine(
+    "Prisoner's Dilemma": GameMachine(
         payoff_matrix={
             Move.COOPERATE: {Move.COOPERATE: (2, 2), Move.DEFECT: (0, 3)},
             Move.DEFECT: {Move.COOPERATE: (3, 0), Move.DEFECT: (1, 1)},
@@ -40,37 +42,21 @@ GAME_MACHINES = {
 }
 
 
-def generate_players():
-    return [
-        AlwaysCooperatePlayer(),
-        AlwaysCooperatePlayer(),
-        AlwaysCooperatePlayer(),
-        AlwaysCooperatePlayer(),
-        AlwaysDefectPlayer(),
-        AlwaysDefectPlayer(),
-        AlwaysDefectPlayer(),
-        AlwaysDefectPlayer(),
-        TitForTatPlayer(),
-        TitForTatPlayer(),
-        TitForTatPlayer(),
-        TitForTatPlayer(),
-        SuspiciousTitForTatPlayer(),
-        SuspiciousTitForTatPlayer(),
-        SuspiciousTitForTatPlayer(),
-        SuspiciousTitForTatPlayer(),
-        TitForTwoTatsPlayer(),
-        TitForTwoTatsPlayer(),
-        TitForTwoTatsPlayer(),
-        TitForTwoTatsPlayer(),
-        TatForTitPlayer(),
-        TatForTitPlayer(),
-        TatForTitPlayer(),
-        TatForTitPlayer(),
-        RandomPlayer(),
-        RandomPlayer(),
-        RandomPlayer(),
-        RandomPlayer(),
+def generate_players(instances_per_class=50):
+    classes = [
+        AlwaysCooperatePlayer,
+        AlwaysDefectPlayer,
+        TitForTatPlayer,
+        SuspiciousTitForTatPlayer,
+        TitForTwoTatsPlayer,
+        TatForTitPlayer,
+        RandomPlayer,
     ]
+    players = []
+    for cls in classes:
+        for _ in range(instances_per_class):
+            players.append(cls())
+    return players
 
 
 def run_epoch(players, game_machine, game_graph):
@@ -80,20 +66,24 @@ def run_epoch(players, game_machine, game_graph):
         player_2 = players[edge[1]]
         for i in range(CONSECUTIVE_MOVES):
             game_machine.play_game(player_1, player_2)
-        results[(player_1.name, player_2.name)] = (player_1.score, player_2.score)
+        results[(edge[0], edge[1])] = (player_1.score, player_2.score)
         player_1.finish_game()
         player_2.finish_game()
     return results
 
 
 def simulation_step(players, death_threshold=0.25, reproduction_threshold=0.75):
+    import random
     n = len(players)
 
     # assign survivability scores
+    # Randomly shuffle first so that players with identical run_scores don't 
+    # receive survivability purely based on their original list positions.
     players_copy = players.copy()
+    random.shuffle(players_copy)
     players_copy.sort(key=lambda x: x.run_score, reverse=False)
     for i, player in enumerate(players_copy):
-        player.survivability_score = i / (n - 1)
+        player.survivability_score = i / (n - 1) if n > 1 else 0.5
 
     # eliminate bottom 25% and reproduce top 75%
     new_generation = []
@@ -120,27 +110,26 @@ def main():
     game_plotter = Plotter()
     results = {}
     for game_name, game_machine in GAME_MACHINES.items():
-        players = generate_players()
-        game_graph = FullyConnectedGraph(len(players))
-
+        players = generate_players(instances_per_class=50)
+        
         # Record initial population
         game_plotter.record_epoch(game_name, 0, players)
 
-        for i in range(EPOCHS):
+        for i in tqdm(range(EPOCHS), desc=f"Simulating {game_name}", unit="epoch"):
+            # Instantiate graph here in case population size changes from simulation_step
+            game_graph = FullyConnectedGraph(len(players))
             run_epoch(players, game_machine, game_graph)
-            # print(f"Epoch {i+1} completed")
-            for j, player in enumerate(players):
-                # print(j, player.strategy_name, player.run_score)
-                pass
             players = simulation_step(players)
 
             # Record population after reproduction and death
             game_plotter.record_epoch(game_name, i + 1, players)
-            # print()
 
-        print(f"Final population for {game_name}:\n")
-        for i, player in enumerate(players):
-            print(i, player.strategy_name)
+        # Print concise summary
+        counts = Counter(p.strategy_name for p in players)
+        print(f"Final population for {game_name}:")
+        for strategy, count in counts.most_common():
+            print(f"  {strategy}: {count}")
+        print()
         print()
 
     print("Generating CSVs and Plots...")

@@ -16,7 +16,7 @@ Below are the details for each game modeled in this simulation.
 *   **Defect / Defect:** Both get 1 point.
 
 **Population Evolution:**
-![Prisoner's Dilemma Population](output/prisioners_dilemma.png)
+![Prisoner's Dilemma Population](output/prisoner's_dilemma.png)
 
 ---
 
